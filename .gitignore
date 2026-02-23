@@ -1,0 +1,17 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+.vs/
+.vscode/
+.idea/
+
+# Secrets
+appsettings.Development.json
+secrets.json
+
+# Other
+.DS_Store
+Thumbs.db
