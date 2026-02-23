@@ -1,6 +1,34 @@
-# .NET
+# .NET Build results & intermediates (chủ yếu từ VS / dotnet build)
 bin/
 obj/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa]rchive/
+[Bb]uild/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+**/bin/
+**/obj/               # recursive để catch bin/obj trong mọi project
+
+# Architecture-specific (thường sinh khi build cho platform khác)
+[Dd]ebug/x64/
+[Rr]elease/x64/
+bin/x64/
+obj/x64/
+[Dd]ebug/x86/
+[Rr]elease/x86/
+bin/x86/
+obj/x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+
+# User-specific files (giữ nguyên)
 *.user
 *.suo
 *.userosscache
@@ -8,10 +36,10 @@ obj/
 .vscode/
 .idea/
 
-# Secrets
+# Secrets (giữ nguyên)
 appsettings.Development.json
 secrets.json
 
-# Other
+# Other (giữ nguyên)
 .DS_Store
 Thumbs.db
