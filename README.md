@@ -15,13 +15,13 @@ Dự án ASP.NET Core Web API phục vụ app Android khách hàng xem, mua sắ
 
 ---
 
-## Công nghệ sử dụng (chưa hoàn thiện)
+## Công nghệ sử dụng
 
 - **Framework**: ASP.NET Core 8.0 (Web API)
 - **Kiến trúc**: N-Tier (API → BLL → DAL → Domain)
 - **Database**: SQL Server (Database First)
 - **Authentication**: JWT + Google OAuth
-- **Payment**: VNPay + COD
+- **Payment**: VNPay
 - **ORM**: Entity Framework Core
 - **Validation**: FluentValidation
 - **Mapping**: AutoMapper
@@ -31,10 +31,10 @@ Dự án ASP.NET Core Web API phục vụ app Android khách hàng xem, mua sắ
 
 ## Tính năng chính
 
-- Đăng ký / Đăng nhập (Email + Google)
+- Đăng ký / Đăng nhập
 - Quản lý sản phẩm & danh mục
 - Giỏ hàng (Cart)
-- Đặt hàng & Thanh toán (VNPay + COD)
+- Đặt hàng & Thanh toán
 - Lịch sử đơn hàng
 - Chat với cửa hàng
 - Bản đồ vị trí cửa hàng
