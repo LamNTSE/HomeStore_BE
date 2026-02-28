@@ -73,12 +73,17 @@ public class AuthService : IAuthService
     {
         try
         {
-            var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, new GoogleJsonWebSignature.ValidationSettings
+            var clientId = _config["Google:ClientId"];
+
+            var settings = new GoogleJsonWebSignature.ValidationSettings
             {
-                Audience = new[] { _config["Google:ClientId"] }
-            });
+                Audience = new[] { clientId }
+            };
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
 
             var user = await _userRepo.GetByEmailAsync(payload.Email);
+
             if (user == null)
             {
                 user = new User
@@ -87,17 +92,24 @@ public class AuthService : IAuthService
                     Email = payload.Email,
                     AvatarUrl = payload.Picture,
                     Provider = "Google",
-                    Role = "Customer"
+                    Role = "Customer",
+                    CreatedAt = DateTime.UtcNow
                 };
+
                 await _userRepo.CreateAsync(user);
             }
 
             var token = GenerateJwtToken(user);
+
             return ApiResponse<AuthResponse>.Ok(new AuthResponse
             {
                 Token = token,
                 User = _mapper.Map<UserDto>(user)
             });
+        }
+        catch (InvalidJwtException ex)
+        {
+            return ApiResponse<AuthResponse>.Fail("Invalid Google token: " + ex.Message);
         }
         catch (Exception ex)
         {
