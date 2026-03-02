@@ -17,6 +17,8 @@ public class HomeStoreV2Context : DbContext
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<Message> Messages => Set<Message>();
     public DbSet<StoreLocation> StoreLocations => Set<StoreLocation>();
+    public DbSet<Feedback> Feedbacks => Set<Feedback>();
+    public DbSet<Voucher> Vouchers => Set<Voucher>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -104,6 +106,26 @@ public class HomeStoreV2Context : DbContext
              .WithMany(c => c.Products)
              .HasForeignKey(p => p.CategoryId)
              .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Feedback
+        modelBuilder.Entity<Feedback>(e =>
+        {
+            e.HasOne(f => f.User)
+             .WithMany(u => u.Feedbacks)
+             .HasForeignKey(f => f.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasOne(f => f.Product)
+             .WithMany(p => p.Feedbacks)
+             .HasForeignKey(f => f.ProductId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Voucher
+        modelBuilder.Entity<Voucher>(e =>
+        {
+            e.HasIndex(v => v.Code).IsUnique();
         });
     }
 }

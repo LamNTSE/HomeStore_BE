@@ -40,4 +40,5 @@ public partial class User
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     public virtual ICollection<Message> SentMessages { get; set; } = new List<Message>();
     public virtual ICollection<Message> ReceivedMessages { get; set; } = new List<Message>();
+    public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 }

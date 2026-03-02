@@ -2,9 +2,12 @@ using AutoMapper;
 using HomeStore.Domain.DTOs.Auth;
 using HomeStore.Domain.DTOs.Carts;
 using HomeStore.Domain.DTOs.Chat;
+using HomeStore.Domain.DTOs.Feedbacks;
 using HomeStore.Domain.DTOs.Orders;
 using HomeStore.Domain.DTOs.Products;
 using HomeStore.Domain.DTOs.Store;
+using HomeStore.Domain.DTOs.Users;
+using HomeStore.Domain.DTOs.Vouchers;
 using HomeStore.Domain.Entities;
 
 namespace HomeStore.BLL.Mappings;
@@ -48,5 +51,16 @@ public class MappingProfile : Profile
 
         // StoreLocation
         CreateMap<StoreLocation, StoreLocationDto>();
+
+        // UserManagement
+        CreateMap<User, UserManagementDto>();
+
+        // Voucher
+        CreateMap<Voucher, VoucherDto>();
+
+        // Feedback
+        CreateMap<Feedback, FeedbackDto>()
+            .ForMember(d => d.UserFullName, opt => opt.MapFrom(s => s.User != null ? s.User.FullName : ""))
+            .ForMember(d => d.ProductName, opt => opt.MapFrom(s => s.Product != null ? s.Product.ProductName : ""));
     }
 }

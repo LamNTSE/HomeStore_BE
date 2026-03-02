@@ -25,6 +25,8 @@ public static class ServiceRegistration
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<IStoreLocationRepository, StoreLocationRepository>();
+        services.AddScoped<IVoucherRepository, VoucherRepository>();
+        services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 
         // Services
         services.AddScoped<IAuthService, AuthService>();
@@ -34,6 +36,9 @@ public static class ServiceRegistration
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IStoreService, StoreService>();
+        services.AddScoped<IUserManagementService, UserManagementService>();
+        services.AddScoped<IVoucherService, VoucherService>();
+        services.AddScoped<IFeedbackService, FeedbackService>();
 
         // AutoMapper
         services.AddAutoMapper(typeof(MappingProfile));
