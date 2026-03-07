@@ -1,4 +1,4 @@
-using HomeStore.Domain.DTOs.Vouchers;
+﻿using HomeStore.Domain.DTOs.Vouchers;
 using HomeStore.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -66,5 +66,30 @@ public class VouchersController : ControllerBase
     {
         var result = await _voucherService.DeleteVoucherAsync(id);
         return result.Success ? Ok(result) : NotFound(result);
+    }
+
+    /// <summary>Customer: get available vouchers</summary>
+    [Authorize(Roles = "Customer,Admin")]
+    [HttpGet("available")]
+    public async Task<IActionResult> GetAvailable()
+    {
+        var result = await _voucherService.GetAllVouchersAsync();
+
+        if (!result.Success)
+            return BadRequest(result);
+
+        // chỉ lấy voucher còn hiệu lực
+        var available = result.Data!
+            .Where(v =>
+                v.IsActive &&
+                v.StartDate <= DateTime.UtcNow &&
+                v.ExpiryDate >= DateTime.UtcNow)
+            .ToList();
+
+        return Ok(new
+        {
+            success = true,
+            data = available
+        });
     }
 }

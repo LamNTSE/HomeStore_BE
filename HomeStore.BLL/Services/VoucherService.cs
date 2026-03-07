@@ -24,6 +24,27 @@ public class VoucherService : IVoucherService
         return ApiResponse<List<VoucherDto>>.Ok(_mapper.Map<List<VoucherDto>>(vouchers));
     }
 
+    public async Task<ApiResponse<List<VoucherDto>>> GetAvailableVouchersAsync()
+    {
+        var vouchers = await _voucherRepo.GetAllAsync();
+
+        if (vouchers == null || vouchers.Count == 0)
+            return ApiResponse<List<VoucherDto>>.Ok([]);
+
+        var now = DateTime.UtcNow;
+
+        var available = vouchers
+            .Where(v =>
+                v.IsActive &&
+                v.StartDate <= now &&
+                v.ExpiryDate >= now)
+            .ToList();
+
+        return ApiResponse<List<VoucherDto>>.Ok(
+            _mapper.Map<List<VoucherDto>>(available)
+        );
+    }
+
     public async Task<ApiResponse<VoucherDto>> GetVoucherByIdAsync(int voucherId)
     {
         var voucher = await _voucherRepo.GetByIdAsync(voucherId);
