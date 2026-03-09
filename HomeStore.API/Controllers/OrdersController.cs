@@ -40,6 +40,14 @@ public class OrdersController : ControllerBase
     }
 
     [Authorize(Roles = "Admin")]
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllOrders()
+    {
+        var result = await _orderService.GetAllOrdersAsync();
+        return Ok(result);
+    }
+
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}/status")]
     public async Task<IActionResult> UpdateStatus(int id, [FromQuery] string status)
     {

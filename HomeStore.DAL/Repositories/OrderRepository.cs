@@ -31,6 +31,13 @@ public class OrderRepository : IOrderRepository
             .OrderByDescending(o => o.CreatedAt)
             .ToListAsync();
 
+    public async Task<List<Order>> GetAllAsync()
+        => await _context.Orders
+            .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
+            .Include(o => o.Payment)
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync();
+
     public async Task UpdateAsync(Order order)
     {
         _context.Orders.Update(order);

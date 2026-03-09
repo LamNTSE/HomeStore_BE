@@ -77,6 +77,12 @@ public class OrderService : IOrderService
         return ApiResponse<List<OrderDto>>.Ok(_mapper.Map<List<OrderDto>>(orders));
     }
 
+    public async Task<ApiResponse<List<OrderDto>>> GetAllOrdersAsync()
+    {
+        var orders = await _orderRepo.GetAllAsync();
+        return ApiResponse<List<OrderDto>>.Ok(_mapper.Map<List<OrderDto>>(orders));
+    }
+
     public async Task<ApiResponse<OrderDto>> UpdateOrderStatusAsync(int orderId, string status)
     {
         var order = await _orderRepo.GetByIdAsync(orderId);

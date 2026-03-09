@@ -7,5 +7,6 @@ public interface IOrderRepository
     Task<Order> CreateAsync(Order order);
     Task<Order?> GetByIdAsync(int orderId);
     Task<List<Order>> GetByUserIdAsync(int userId);
+    Task<List<Order>> GetAllAsync();
     Task UpdateAsync(Order order);
 }
