@@ -54,4 +54,18 @@ public class OrdersController : ControllerBase
         var result = await _orderService.UpdateOrderStatusAsync(id, status);
         return result.Success ? Ok(result) : NotFound(result);
     }
+
+    [HttpPut("{id}/cancel")]
+    public async Task<IActionResult> CancelOrder(int id)
+    {
+        var result = await _orderService.CancelOrderAsync(UserId, id);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpPut("{id}/confirm-delivery")]
+    public async Task<IActionResult> ConfirmDelivery(int id)
+    {
+        var result = await _orderService.ConfirmDeliveryAsync(UserId, id);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
 }

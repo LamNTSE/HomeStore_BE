@@ -93,4 +93,34 @@ public class OrderService : IOrderService
         await _orderRepo.UpdateAsync(order);
         return ApiResponse<OrderDto>.Ok(_mapper.Map<OrderDto>(order), "Order status updated.");
     }
+
+    public async Task<ApiResponse<OrderDto>> CancelOrderAsync(int userId, int orderId)
+    {
+        var order = await _orderRepo.GetByIdAsync(orderId);
+        if (order == null || order.UserId != userId)
+            return ApiResponse<OrderDto>.Fail("Order not found.");
+
+        if (order.Status == "Delivered" || order.Status == "Cancelled")
+            return ApiResponse<OrderDto>.Fail("Cannot cancel this order.");
+
+        order.Status = "Cancelled";
+        order.UpdatedAt = DateTime.UtcNow;
+        await _orderRepo.UpdateAsync(order);
+        return ApiResponse<OrderDto>.Ok(_mapper.Map<OrderDto>(order), "Order cancelled.");
+    }
+
+    public async Task<ApiResponse<OrderDto>> ConfirmDeliveryAsync(int userId, int orderId)
+    {
+        var order = await _orderRepo.GetByIdAsync(orderId);
+        if (order == null || order.UserId != userId)
+            return ApiResponse<OrderDto>.Fail("Order not found.");
+
+        if (order.Status != "Shipping")
+            return ApiResponse<OrderDto>.Fail("Order is not in Shipping status.");
+
+        order.Status = "Delivered";
+        order.UpdatedAt = DateTime.UtcNow;
+        await _orderRepo.UpdateAsync(order);
+        return ApiResponse<OrderDto>.Ok(_mapper.Map<OrderDto>(order), "Delivery confirmed.");
+    }
 }
