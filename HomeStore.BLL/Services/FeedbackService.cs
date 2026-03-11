@@ -95,4 +95,17 @@ public class FeedbackService : IFeedbackService
         await _feedbackRepo.DeleteAsync(feedbackId);
         return ApiResponse<bool>.Ok(true, "Feedback deleted.");
     }
+
+    public async Task<ApiResponse<FeedbackDto>> AdminReplyFeedbackAsync(int feedbackId, AdminReplyFeedbackRequest request)
+    {
+        var feedback = await _feedbackRepo.GetByIdAsync(feedbackId);
+        if (feedback == null) return ApiResponse<FeedbackDto>.Fail("Feedback not found.");
+
+        feedback.AdminReply = request.AdminReply;
+        feedback.AdminReplyAt = DateTime.UtcNow;
+
+        await _feedbackRepo.UpdateAsync(feedback);
+        var updated = await _feedbackRepo.GetByIdAsync(feedbackId);
+        return ApiResponse<FeedbackDto>.Ok(_mapper.Map<FeedbackDto>(updated!), "Admin reply saved.");
+    }
 }

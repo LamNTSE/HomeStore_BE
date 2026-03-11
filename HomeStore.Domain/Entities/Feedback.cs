@@ -24,6 +24,11 @@ public partial class Feedback
 
     public DateTime? UpdatedAt { get; set; }
 
+    [MaxLength(2000)]
+    public string? AdminReply { get; set; }
+
+    public DateTime? AdminReplyAt { get; set; }
+
     // Navigation
     [ForeignKey("UserId")]
     public virtual User? User { get; set; }

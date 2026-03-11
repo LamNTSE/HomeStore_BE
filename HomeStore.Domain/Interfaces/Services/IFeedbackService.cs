@@ -12,4 +12,5 @@ public interface IFeedbackService
     Task<ApiResponse<FeedbackDto>> CreateFeedbackAsync(int userId, CreateFeedbackRequest request);
     Task<ApiResponse<FeedbackDto>> UpdateFeedbackAsync(int userId, int feedbackId, UpdateFeedbackRequest request);
     Task<ApiResponse<bool>> DeleteFeedbackAsync(int userId, int feedbackId, bool isAdmin);
+    Task<ApiResponse<FeedbackDto>> AdminReplyFeedbackAsync(int feedbackId, AdminReplyFeedbackRequest request);
 }

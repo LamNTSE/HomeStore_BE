@@ -83,6 +83,23 @@ public class DatabaseSchemaUpdater : IDatabaseSchemaUpdater
                 PRINT '[SchemaUpdater] Created table Feedbacks.';
             END");
 
+        // Add AdminReply columns to Feedbacks if missing (for existing DBs)
+        await _context.Database.ExecuteSqlRawAsync(@"
+            IF EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Feedbacks')
+               AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Feedbacks') AND name = 'AdminReply')
+            BEGIN
+                ALTER TABLE [Feedbacks] ADD [AdminReply] NVARCHAR(2000) NULL;
+                PRINT '[SchemaUpdater] Added column AdminReply to Feedbacks.';
+            END");
+
+        await _context.Database.ExecuteSqlRawAsync(@"
+            IF EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Feedbacks')
+               AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Feedbacks') AND name = 'AdminReplyAt')
+            BEGIN
+                ALTER TABLE [Feedbacks] ADD [AdminReplyAt] DATETIME2 NULL;
+                PRINT '[SchemaUpdater] Added column AdminReplyAt to Feedbacks.';
+            END");
+
         Console.WriteLine("[SchemaUpdater] New tables checked/created.");
     }
 }

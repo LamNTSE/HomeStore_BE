@@ -11,4 +11,6 @@ public class FeedbackDto
     public string? Comment { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
+    public string? AdminReply { get; set; }
+    public DateTime? AdminReplyAt { get; set; }
 }

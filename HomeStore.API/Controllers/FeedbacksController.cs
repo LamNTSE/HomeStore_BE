@@ -79,4 +79,13 @@ public class FeedbacksController : ControllerBase
         var result = await _feedbackService.DeleteFeedbackAsync(UserId, id, IsAdmin);
         return result.Success ? Ok(result) : BadRequest(result);
     }
+
+    /// <summary>Admin: post a reply to a feedback.</summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}/admin-reply")]
+    public async Task<IActionResult> AdminReply(int id, [FromBody] AdminReplyFeedbackRequest request)
+    {
+        var result = await _feedbackService.AdminReplyFeedbackAsync(id, request);
+        return result.Success ? Ok(result) : NotFound(result);
+    }
 }
