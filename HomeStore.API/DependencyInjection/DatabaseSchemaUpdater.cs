@@ -100,6 +100,18 @@ public class DatabaseSchemaUpdater : IDatabaseSchemaUpdater
                 PRINT '[SchemaUpdater] Added column AdminReplyAt to Feedbacks.';
             END");
 
+        // Widen AvatarUrl to nvarchar(max) for Base64 image support
+        await _context.Database.ExecuteSqlRawAsync(@"
+            IF EXISTS (
+                SELECT 1 FROM sys.columns
+                WHERE object_id = OBJECT_ID('Users') AND name = 'AvatarUrl'
+                  AND max_length <> -1
+            )
+            BEGIN
+                ALTER TABLE [Users] ALTER COLUMN [AvatarUrl] NVARCHAR(MAX) NULL;
+                PRINT '[SchemaUpdater] Widened Users.AvatarUrl to NVARCHAR(MAX).';
+            END");
+
         Console.WriteLine("[SchemaUpdater] New tables checked/created.");
     }
 }

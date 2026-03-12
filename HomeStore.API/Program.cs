@@ -2,6 +2,7 @@ using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using HomeStore.API.DependencyInjection;
+using HomeStore.API.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -10,6 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ── DI: Repositories, Services, DbContext, AutoMapper ──
 builder.Services.AddApplicationServices(builder.Configuration);
+
+// ── SignalR ──
+builder.Services.AddSignalR();
 
 // ── Controllers + FluentValidation ──
 builder.Services.AddControllers();
@@ -34,6 +38,18 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+    };
+    // Allow SignalR clients to pass JWT via query string (WebSocket can't set headers)
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                context.Token = accessToken;
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -114,6 +130,10 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// ── SignalR Hubs ──
+app.MapHub<ChatHub>("/hubs/chat");
+app.MapHub<OrderHub>("/hubs/orders");
 
 app.Run();
 

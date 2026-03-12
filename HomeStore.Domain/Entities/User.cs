@@ -30,7 +30,6 @@ public partial class User
     [MaxLength(50)]
     public string Provider { get; set; } = "Local"; // Local | Google
 
-    [MaxLength(500)]
     public string? AvatarUrl { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
