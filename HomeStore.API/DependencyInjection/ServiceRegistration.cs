@@ -23,6 +23,7 @@ public static class ServiceRegistration
         services.AddScoped<ICartRepository, CartRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<IStoreLocationRepository, StoreLocationRepository>();
         services.AddScoped<IVoucherRepository, VoucherRepository>();

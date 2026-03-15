@@ -1,4 +1,5 @@
 using AutoMapper;
+using HomeStore.DAL.Repositories;
 using HomeStore.Domain.DTOs.Common;
 using HomeStore.Domain.DTOs.Products;
 using HomeStore.Domain.Entities;
@@ -12,6 +13,7 @@ public class ProductService : IProductService
     private readonly IProductRepository _productRepo;
     private readonly ICategoryRepository _categoryRepo;
     private readonly IMapper _mapper;
+ 
 
     public ProductService(IProductRepository productRepo, ICategoryRepository categoryRepo, IMapper mapper)
     {
@@ -80,5 +82,12 @@ public class ProductService : IProductService
     {
         var categories = await _categoryRepo.GetAllAsync();
         return ApiResponse<List<CategoryDto>>.Ok(_mapper.Map<List<CategoryDto>>(categories));
+    }
+
+    public async Task<ApiResponse<List<ProductSoldDto>>> GetProductSoldAsync()
+    {
+        var result = await _productRepo.GetProductSoldAsync();
+
+        return ApiResponse<List<ProductSoldDto>>.Ok(result);
     }
 }

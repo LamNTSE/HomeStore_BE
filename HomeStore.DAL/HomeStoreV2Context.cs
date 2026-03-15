@@ -15,6 +15,7 @@ public class HomeStoreV2Context : DbContext
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<PaymentTransaction> PaymentTransactions => Set<PaymentTransaction>();
     public DbSet<Message> Messages => Set<Message>();
     public DbSet<StoreLocation> StoreLocations => Set<StoreLocation>();
     public DbSet<Feedback> Feedbacks => Set<Feedback>();
@@ -84,6 +85,16 @@ public class HomeStoreV2Context : DbContext
              .HasForeignKey<Payment>(p => p.OrderId)
              .OnDelete(DeleteBehavior.Cascade);
         });
+
+        // PaymentTransaction
+        modelBuilder.Entity<PaymentTransaction>(e =>
+        {
+            e.HasOne(t => t.Payment)
+             .WithMany(p => p.Transactions)
+             .HasForeignKey(t => t.PaymentId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
 
         // Message
         modelBuilder.Entity<Message>(e =>

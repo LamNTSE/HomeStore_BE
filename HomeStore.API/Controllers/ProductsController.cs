@@ -72,4 +72,11 @@ public class ProductsController : ControllerBase
         var result = await _productService.DeleteProductAsync(id);
         return result.Success ? Ok(result) : NotFound(result);
     }
+
+    [HttpGet("sold")]
+    public async Task<IActionResult> GetProductSold()
+    {
+        var result = await _productService.GetProductSoldAsync();
+        return Ok(result);
+    }
 }

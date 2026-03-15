@@ -1,3 +1,4 @@
+using HomeStore.Domain.DTOs.Products;
 using HomeStore.Domain.Entities;
 using HomeStore.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -46,5 +47,20 @@ public class ProductRepository : IProductRepository
             product.IsActive = false;
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task<List<ProductSoldDto>> GetProductSoldAsync()
+    {
+        return await _context.OrderItems
+            .AsNoTracking()
+            .Where(i => i.Order != null && i.Order.Status == "Delivered")
+            .GroupBy(i => i.ProductId)
+            .Select(g => new ProductSoldDto
+            {
+                ProductId = g.Key,
+                Sold = g.Sum(x => x.Quantity)
+            })
+            .OrderByDescending(x => x.Sold)
+            .ToListAsync();
     }
 }

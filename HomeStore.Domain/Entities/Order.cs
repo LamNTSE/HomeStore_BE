@@ -30,6 +30,9 @@ public partial class Order
 
     public DateTime? UpdatedAt { get; set; }
 
+    public int? VoucherId { get; set; }
+    public decimal DiscountAmount { get; set; }
+
     // Navigation
     [ForeignKey("UserId")]
     public virtual User? User { get; set; }

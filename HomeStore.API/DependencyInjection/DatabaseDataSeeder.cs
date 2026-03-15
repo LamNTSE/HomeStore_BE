@@ -12,10 +12,14 @@ public class DatabaseDataSeeder : IDatabaseDataSeeder
 
     public async Task SeedAsync()
     {
+        Console.WriteLine("Seeder started");
+
         await SeedUsersAsync();
         await SeedCategoriesAndProductsAsync();
         await SeedVouchersAsync();
-        await SeedFeedbacksAsync();
+        
+
+        Console.WriteLine("Seeder finished");
     }
 
     // ── Users ────────────────────────────────────────────────────────────────
@@ -194,57 +198,5 @@ public class DatabaseDataSeeder : IDatabaseDataSeeder
 
         await _context.SaveChangesAsync();
         Console.WriteLine("[DataSeeder] Seeded vouchers.");
-    }
-
-    // ── Feedbacks ─────────────────────────────────────────────────────────────
-    private async Task SeedFeedbacksAsync()
-    {
-        if (await _context.Feedbacks.AnyAsync()) return;
-
-        // Need at least 2 customers and some products
-        var customers = await _context.Users
-            .Where(u => u.Role == "Customer")
-            .OrderBy(u => u.UserId)
-            .Take(2)
-            .ToListAsync();
-
-        var products = await _context.Products
-            .OrderBy(p => p.ProductId)
-            .Take(5)
-            .ToListAsync();
-
-        if (customers.Count < 1 || products.Count < 1) return;
-
-        var feedbacks = new List<Feedback>();
-        var customer1 = customers[0];
-        var customer2 = customers.Count > 1 ? customers[1] : customers[0];
-
-        if (products.Count >= 1)
-        {
-            feedbacks.Add(new Feedback { UserId = customer1.UserId, ProductId = products[0].ProductId, Rating = 5, Comment = "Sản phẩm rất đẹp, chất lượng tốt, đúng như mô tả!", CreatedAt = DateTime.UtcNow.AddDays(-10) });
-            feedbacks.Add(new Feedback { UserId = customer2.UserId, ProductId = products[0].ProductId, Rating = 4, Comment = "Sofa thoải mái, giao hàng nhanh. Màu sắc đẹp hơn ảnh.", CreatedAt = DateTime.UtcNow.AddDays(-8) });
-        }
-        if (products.Count >= 2)
-        {
-            feedbacks.Add(new Feedback { UserId = customer1.UserId, ProductId = products[1].ProductId, Rating = 4, Comment = "Bàn uống nước chắc chắn, thiết kế hiện đại.", CreatedAt = DateTime.UtcNow.AddDays(-7) });
-        }
-        if (products.Count >= 3)
-        {
-            feedbacks.Add(new Feedback { UserId = customer2.UserId, ProductId = products[2].ProductId, Rating = 5, Comment = "Giường king size rất rộng, gỗ tốt, ráp dễ dàng.", CreatedAt = DateTime.UtcNow.AddDays(-5) });
-            feedbacks.Add(new Feedback { UserId = customer1.UserId, ProductId = products[2].ProductId, Rating = 3, Comment = "Chất lượng ổn nhưng giá hơi cao so với kỳ vọng.", CreatedAt = DateTime.UtcNow.AddDays(-4) });
-        }
-        if (products.Count >= 4)
-        {
-            feedbacks.Add(new Feedback { UserId = customer2.UserId, ProductId = products[3].ProductId, Rating = 5, Comment = "Tủ quần áo đẹp, gương to, lắp ghép dễ. Rất hài lòng!", CreatedAt = DateTime.UtcNow.AddDays(-3) });
-        }
-        if (products.Count >= 5)
-        {
-            feedbacks.Add(new Feedback { UserId = customer1.UserId, ProductId = products[4].ProductId, Rating = 4, Comment = "Bàn ăn đủ chỗ cho cả gia đình, gỗ chắc tốt.", CreatedAt = DateTime.UtcNow.AddDays(-2) });
-            feedbacks.Add(new Feedback { UserId = customer2.UserId, ProductId = products[4].ProductId, Rating = 2, Comment = "Giao hàng chậm, 1 ghế bị xước nhỏ. Cần cải thiện đóng gói.", CreatedAt = DateTime.UtcNow.AddDays(-1) });
-        }
-
-        _context.Feedbacks.AddRange(feedbacks);
-        await _context.SaveChangesAsync();
-        Console.WriteLine($"[DataSeeder] Seeded {feedbacks.Count} feedbacks.");
     }
 }

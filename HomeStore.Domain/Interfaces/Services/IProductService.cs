@@ -13,4 +13,5 @@ public interface IProductService
     Task<ApiResponse<ProductDto>> UpdateProductAsync(int productId, UpdateProductRequest request);
     Task<ApiResponse<bool>> DeleteProductAsync(int productId);
     Task<ApiResponse<List<CategoryDto>>> GetAllCategoriesAsync();
+    Task<ApiResponse<List<ProductSoldDto>>> GetProductSoldAsync();
 }

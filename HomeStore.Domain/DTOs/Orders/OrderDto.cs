@@ -1,4 +1,4 @@
-namespace HomeStore.Domain.DTOs.Orders;
+﻿namespace HomeStore.Domain.DTOs.Orders;
 
 public class OrderDto
 {

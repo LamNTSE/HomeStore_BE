@@ -20,12 +20,13 @@ public partial class Payment
     [MaxLength(50)]
     public string Status { get; set; } = "Pending"; // Pending | Completed | Failed
 
-    [MaxLength(200)]
-    public string? TransactionId { get; set; }
-
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation
     [ForeignKey("OrderId")]
     public virtual Order? Order { get; set; }
+
+    public ICollection<PaymentTransaction> Transactions { get; set; }
+    = new List<PaymentTransaction>();
+
 }
