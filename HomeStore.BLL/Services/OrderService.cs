@@ -218,6 +218,24 @@ public class OrderService : IOrderService
 
         await _orderRepo.UpdateAsync(order);
 
+        // 🔥 TRỪ STOCK KHI DELIVERED
+        var orderItems = order.OrderItems;
+
+        foreach (var item in orderItems)
+        {
+            var product = await _productRepo.GetByIdAsync(item.ProductId);
+
+            if (product != null)
+            {
+                product.StockQuantity -= item.Quantity;
+
+                if (product.StockQuantity < 0)
+                    product.StockQuantity = 0;
+
+                await _productRepo.UpdateAsync(product);
+            }
+        }
+
         // 🔥 UPDATE PAYMENT FOR COD
         var payment = await _paymentRepo.GetByOrderIdAsync(orderId);
 
