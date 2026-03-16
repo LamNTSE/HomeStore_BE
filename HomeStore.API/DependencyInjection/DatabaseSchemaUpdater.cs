@@ -1,40 +1,66 @@
 using HomeStore.DAL;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace HomeStore.API.DependencyInjection;
 
 public class DatabaseSchemaUpdater : IDatabaseSchemaUpdater
 {
     private readonly HomeStoreV2Context _context;
-    private readonly IWebHostEnvironment _env;
 
-    public DatabaseSchemaUpdater(HomeStoreV2Context context, IWebHostEnvironment env)
+    public DatabaseSchemaUpdater(HomeStoreV2Context context)
     {
         _context = context;
-        _env = env;
     }
 
     public async Task UpdateSchemaAsync()
     {
-        var scriptPath = Path.Combine(_env.ContentRootPath, "DatabaseScripts", "01_HomeStore_Schema.sql");
-        if (!File.Exists(scriptPath))
+        var hasMigrationHistory = await TableExistsAsync("__EFMigrationsHistory");
+        var hasUserTables = await HasAnyUserTableAsync();
+
+        if (hasMigrationHistory || !hasUserTables)
         {
-            Console.WriteLine($"[SchemaUpdater] Script not found: {scriptPath}. Using EF EnsureCreated instead.");
-            await _context.Database.EnsureCreatedAsync();
+            var pendingMigrations = (await _context.Database.GetPendingMigrationsAsync()).ToList();
+            if (pendingMigrations.Count > 0)
+            {
+                Console.WriteLine($"[SchemaUpdater] Applying {pendingMigrations.Count} pending migration(s).");
+            }
+            else
+            {
+                Console.WriteLine("[SchemaUpdater] No pending migrations.");
+            }
+
+            await _context.Database.MigrateAsync();
         }
         else
         {
-            var sql = await File.ReadAllTextAsync(scriptPath);
-            await _context.Database.ExecuteSqlRawAsync(sql);
-            Console.WriteLine("[SchemaUpdater] Database schema updated from SQL script.");
+            // Existing database created outside EF migrations.
+            Console.WriteLine("[SchemaUpdater] Existing schema without migration history detected. Applying compatibility patches only.");
         }
 
-        // Ensure new tables added after initial schema are created
+        // Keep idempotent compatibility patches for old databases.
         await EnsureNewTablesAsync();
     }
 
     private async Task EnsureNewTablesAsync()
     {
+        // Backfill columns needed by current Order model on old databases.
+        await _context.Database.ExecuteSqlRawAsync(@"
+            IF EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Orders')
+               AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Orders') AND name = 'VoucherId')
+            BEGIN
+                ALTER TABLE [Orders] ADD [VoucherId] INT NULL;
+                PRINT '[SchemaUpdater] Added column VoucherId to Orders.';
+            END");
+
+        await _context.Database.ExecuteSqlRawAsync(@"
+            IF EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Orders')
+               AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Orders') AND name = 'DiscountAmount')
+            BEGIN
+                ALTER TABLE [Orders] ADD [DiscountAmount] DECIMAL(18,2) NOT NULL DEFAULT 0;
+                PRINT '[SchemaUpdater] Added column DiscountAmount to Orders.';
+            END");
+
         // Vouchers table
         await _context.Database.ExecuteSqlRawAsync(@"
             IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Vouchers')
@@ -113,5 +139,67 @@ public class DatabaseSchemaUpdater : IDatabaseSchemaUpdater
             END");
 
         Console.WriteLine("[SchemaUpdater] New tables checked/created.");
+    }
+
+    private async Task<bool> TableExistsAsync(string tableName)
+    {
+        var conn = _context.Database.GetDbConnection();
+        var shouldClose = conn.State != ConnectionState.Open;
+        if (shouldClose)
+        {
+            await conn.OpenAsync();
+        }
+
+        try
+        {
+            await using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT CASE WHEN EXISTS (SELECT 1 FROM sys.tables WHERE name = @name) THEN 1 ELSE 0 END";
+            var nameParam = cmd.CreateParameter();
+            nameParam.ParameterName = "@name";
+            nameParam.Value = tableName;
+            cmd.Parameters.Add(nameParam);
+
+            var result = await cmd.ExecuteScalarAsync();
+            return Convert.ToInt32(result) == 1;
+        }
+        finally
+        {
+            if (shouldClose)
+            {
+                await conn.CloseAsync();
+            }
+        }
+    }
+
+    private async Task<bool> HasAnyUserTableAsync()
+    {
+        var conn = _context.Database.GetDbConnection();
+        var shouldClose = conn.State != ConnectionState.Open;
+        if (shouldClose)
+        {
+            await conn.OpenAsync();
+        }
+
+        try
+        {
+            await using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+                SELECT CASE WHEN EXISTS (
+                    SELECT 1
+                    FROM sys.tables
+                    WHERE is_ms_shipped = 0
+                      AND name <> '__EFMigrationsHistory'
+                ) THEN 1 ELSE 0 END";
+
+            var result = await cmd.ExecuteScalarAsync();
+            return Convert.ToInt32(result) == 1;
+        }
+        finally
+        {
+            if (shouldClose)
+            {
+                await conn.CloseAsync();
+            }
+        }
     }
 }

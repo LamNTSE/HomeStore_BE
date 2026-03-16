@@ -43,3 +43,4 @@ secrets.json
 # Other (giữ nguyên)
 .DS_Store
 Thumbs.db
+.env

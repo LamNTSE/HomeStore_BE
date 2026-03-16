@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
+LoadDotEnv();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ── DI: Repositories, Services, DbContext, AutoMapper ──
@@ -136,4 +138,56 @@ app.MapHub<ChatHub>("/hubs/chat");
 app.MapHub<OrderHub>("/hubs/orders");
 
 app.Run();
+
+static void LoadDotEnv()
+{
+    var envPath = FindDotEnvPath();
+    if (envPath == null)
+    {
+        return;
+    }
+
+    foreach (var rawLine in File.ReadAllLines(envPath))
+    {
+        var line = rawLine.Trim();
+        if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
+        {
+            continue;
+        }
+
+        var separatorIndex = line.IndexOf('=');
+        if (separatorIndex <= 0)
+        {
+            continue;
+        }
+
+        var key = line[..separatorIndex].Trim();
+        var value = line[(separatorIndex + 1)..].Trim();
+
+        if (value.StartsWith('"') && value.EndsWith('"') && value.Length >= 2)
+        {
+            value = value[1..^1];
+        }
+
+        Environment.SetEnvironmentVariable(key, value);
+    }
+}
+
+static string? FindDotEnvPath()
+{
+    var current = new DirectoryInfo(Directory.GetCurrentDirectory());
+
+    while (current != null)
+    {
+        var candidate = Path.Combine(current.FullName, ".env");
+        if (File.Exists(candidate))
+        {
+            return candidate;
+        }
+
+        current = current.Parent;
+    }
+
+    return null;
+}
 
