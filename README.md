@@ -42,3 +42,15 @@ Dự án ASP.NET Core Web API phục vụ app Android khách hàng xem, mua sắ
 - Admin quản lý (sẽ mở rộng sau)
 
 ---
+
+## Chat API Routes
+
+| Method | Path | Muc dich |
+|--------|------|----------|
+| POST | /api/chat/messages | Gui tin nhan moi |
+| GET | /api/chat/conversations | Lay danh sach cuoc tro chuyen cua user hien tai |
+| GET | /api/chat/conversations/{otherUserId}/messages | Lay lich su tin nhan voi mot user cu the |
+| GET | /api/chat/messages/unread | Lay cac tin nhan chua doc cua user hien tai |
+| GET | /api/chat/admin | Lay thong tin tai khoan admin de customer mo chat |
+
+---

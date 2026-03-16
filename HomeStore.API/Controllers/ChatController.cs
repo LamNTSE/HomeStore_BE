@@ -25,7 +25,7 @@ public class ChatController : ControllerBase
 
     private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-    [HttpPost]
+    [HttpPost("messages")]
     public async Task<IActionResult> SendMessage([FromBody] SendMessageRequest request)
     {
         var result = await _chatService.SendMessageAsync(UserId, request);
@@ -39,22 +39,22 @@ public class ChatController : ControllerBase
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
-    [HttpGet("conversation/{otherUserId}")]
-    public async Task<IActionResult> GetConversation(int otherUserId)
+    [HttpGet("conversations/{otherUserId}/messages")]
+    public async Task<IActionResult> GetConversationMessages(int otherUserId)
     {
         var result = await _chatService.GetConversationAsync(UserId, otherUserId);
         return Ok(result);
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetMyMessages()
+    [HttpGet("messages/unread")]
+    public async Task<IActionResult> GetUnreadMessages()
     {
-        var result = await _chatService.GetUserMessagesAsync(UserId);
+        var result = await _chatService.GetUnreadMessagesAsync(UserId);
         return Ok(result);
     }
 
-    [HttpGet("partners")]
-    public async Task<IActionResult> GetConversationPartners()
+    [HttpGet("conversations")]
+    public async Task<IActionResult> GetConversations()
     {
         var result = await _chatService.GetConversationPartnersAsync(UserId);
         return Ok(result);

@@ -41,6 +41,36 @@ public class StoreService : IStoreService
         return ApiResponse<StoreLocationDto>.Ok(_mapper.Map<StoreLocationDto>(store));
     }
 
+    public async Task<ApiResponse<StoreLocationDto>> CreateStoreAsync(StoreLocationDto dto)
+    {
+        var entity = new Domain.Entities.StoreLocation
+        {
+            StoreName = dto.StoreName,
+            Address = dto.Address,
+            Latitude = dto.Latitude,
+            Longitude = dto.Longitude,
+            Phone = dto.Phone,
+            IsActive = true
+        };
+        var created = await _storeRepo.CreateAsync(entity);
+        return ApiResponse<StoreLocationDto>.Ok(_mapper.Map<StoreLocationDto>(created));
+    }
+
+    public async Task<ApiResponse<StoreLocationDto>> UpdateStoreAsync(int locationId, StoreLocationDto dto)
+    {
+        var existing = await _storeRepo.GetByIdAsync(locationId);
+        if (existing == null) return ApiResponse<StoreLocationDto>.Fail("Store not found.");
+
+        existing.StoreName = dto.StoreName;
+        existing.Address = dto.Address;
+        existing.Latitude = dto.Latitude;
+        existing.Longitude = dto.Longitude;
+        existing.Phone = dto.Phone;
+
+        await _storeRepo.UpdateAsync(existing);
+        return ApiResponse<StoreLocationDto>.Ok(_mapper.Map<StoreLocationDto>(existing));
+    }
+
     private static double CalculateDistance(double lat1, double lng1, double lat2, double lng2)
     {
         const double R = 6371; // Earth radius in km

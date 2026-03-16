@@ -26,11 +26,11 @@ public class MessageRepository : IMessageRepository
             .OrderBy(m => m.SentAt)
             .ToListAsync();
 
-    public async Task<List<Message>> GetUserMessagesAsync(int userId)
+    public async Task<List<Message>> GetUnreadMessagesAsync(int userId)
         => await _context.Messages
             .Include(m => m.Sender)
             .Include(m => m.Receiver)
-            .Where(m => m.SenderId == userId || m.ReceiverId == userId)
+            .Where(m => m.ReceiverId == userId && !m.IsRead)
             .OrderByDescending(m => m.SentAt)
             .ToListAsync();
 
@@ -42,6 +42,28 @@ public class MessageRepository : IMessageRepository
             msg.IsRead = true;
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task<int> MarkConversationAsReadAsync(int receiverId, int senderId)
+    {
+        var unreadMessages = await _context.Messages
+            .Where(m => m.ReceiverId == receiverId &&
+                        m.SenderId == senderId &&
+                        !m.IsRead)
+            .ToListAsync();
+
+        if (unreadMessages.Count == 0)
+        {
+            return 0;
+        }
+
+        foreach (var msg in unreadMessages)
+        {
+            msg.IsRead = true;
+        }
+
+        await _context.SaveChangesAsync();
+        return unreadMessages.Count;
     }
 
     public async Task<List<(User Partner, Message LastMsg)>> GetConversationPartnersAsync(int userId)

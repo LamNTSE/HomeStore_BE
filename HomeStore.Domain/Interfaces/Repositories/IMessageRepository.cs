@@ -6,8 +6,9 @@ public interface IMessageRepository
 {
     Task<Message> CreateAsync(Message message);
     Task<List<Message>> GetConversationAsync(int userId1, int userId2);
-    Task<List<Message>> GetUserMessagesAsync(int userId);
+    Task<List<Message>> GetUnreadMessagesAsync(int userId);
     Task MarkAsReadAsync(int messageId);
+    Task<int> MarkConversationAsReadAsync(int receiverId, int senderId);
     Task<List<(User Partner, Message LastMsg)>> GetConversationPartnersAsync(int userId);
     Task<User?> FindAdminUserAsync();
 }

@@ -52,6 +52,8 @@ public class ChatService : IChatService
 
     public async Task<ApiResponse<List<MessageDto>>> GetConversationAsync(int userId, int otherUserId)
     {
+        await _messageRepo.MarkConversationAsReadAsync(userId, otherUserId);
+
         var messages = await _messageRepo.GetConversationAsync(userId, otherUserId);
         var dtos = messages.Select(m => new MessageDto
         {
@@ -70,9 +72,9 @@ public class ChatService : IChatService
         return ApiResponse<List<MessageDto>>.Ok(dtos);
     }
 
-    public async Task<ApiResponse<List<MessageDto>>> GetUserMessagesAsync(int userId)
+    public async Task<ApiResponse<List<MessageDto>>> GetUnreadMessagesAsync(int userId)
     {
-        var messages = await _messageRepo.GetUserMessagesAsync(userId);
+        var messages = await _messageRepo.GetUnreadMessagesAsync(userId);
         var dtos = messages.Select(m => new MessageDto
         {
             MessageId = m.MessageId,

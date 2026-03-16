@@ -1,6 +1,47 @@
 @HomeStore.API_HostAddress = http://localhost:5218
+@BearerToken = REPLACE_WITH_JWT_TOKEN
 
 GET {{HomeStore.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+### Chat - Send message
+POST {{HomeStore.API_HostAddress}}/api/chat/messages
+Authorization: Bearer {{BearerToken}}
+Content-Type: application/json
+
+{
+	"receiverId": 2,
+	"content": "Xin chao, toi can ho tro"
+}
+
+###
+
+### Chat - Get conversations list
+GET {{HomeStore.API_HostAddress}}/api/chat/conversations
+Authorization: Bearer {{BearerToken}}
+Accept: application/json
+
+###
+
+### Chat - Get messages in one conversation
+GET {{HomeStore.API_HostAddress}}/api/chat/conversations/2/messages
+Authorization: Bearer {{BearerToken}}
+Accept: application/json
+
+###
+
+### Chat - Get unread messages
+GET {{HomeStore.API_HostAddress}}/api/chat/messages/unread
+Authorization: Bearer {{BearerToken}}
+Accept: application/json
+
+###
+
+### Chat - Get admin user
+GET {{HomeStore.API_HostAddress}}/api/chat/admin
+Authorization: Bearer {{BearerToken}}
 Accept: application/json
 
 ###
