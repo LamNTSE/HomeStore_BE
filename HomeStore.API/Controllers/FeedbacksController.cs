@@ -53,6 +53,17 @@ public class FeedbacksController : ControllerBase
         return result.Success ? Ok(result) : NotFound(result);
     }
 
+    /// <summary>
+    /// Customer: get feedback of a specific product in a specific order
+    /// </summary>
+    [Authorize]
+    [HttpGet("product/{productId}/order/{orderId}")]
+    public async Task<IActionResult> GetByProductAndOrder(int productId, int orderId)
+    {
+        var result = await _feedbackService.GetFeedbacksByProductAndOrderAsync(productId, orderId);
+        return Ok(result);
+    }
+
     /// <summary>Customer: submit feedback/rating for a product</summary>
     [Authorize]
     [HttpPost]

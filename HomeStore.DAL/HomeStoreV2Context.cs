@@ -125,12 +125,21 @@ public class HomeStoreV2Context : DbContext
             e.HasOne(f => f.User)
              .WithMany(u => u.Feedbacks)
              .HasForeignKey(f => f.UserId)
-             .OnDelete(DeleteBehavior.Cascade);
+             .OnDelete(DeleteBehavior.NoAction);
 
             e.HasOne(f => f.Product)
              .WithMany(p => p.Feedbacks)
              .HasForeignKey(f => f.ProductId)
+             .OnDelete(DeleteBehavior.NoAction);
+
+            e.HasOne(f => f.Order)
+             .WithMany(o => o.Feedbacks)
+             .HasForeignKey(f => f.OrderId)
              .OnDelete(DeleteBehavior.Cascade);
+
+            // tránh duplicate feedback
+            e.HasIndex(f => new { f.UserId, f.ProductId, f.OrderId })
+             .IsUnique();
         });
 
         // Voucher

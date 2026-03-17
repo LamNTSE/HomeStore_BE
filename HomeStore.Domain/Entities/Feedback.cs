@@ -13,6 +13,9 @@ public partial class Feedback
 
     public int ProductId { get; set; }
 
+    // THÊM ORDER ID
+    public int OrderId { get; set; }
+
     /// <summary>Rating from 1 to 5.</summary>
     [Range(1, 5)]
     public int Rating { get; set; }
@@ -35,4 +38,8 @@ public partial class Feedback
 
     [ForeignKey("ProductId")]
     public virtual Product? Product { get; set; }
+
+    // NAVIGATION ORDER
+    [ForeignKey("OrderId")]
+    public virtual Order? Order { get; set; }
 }

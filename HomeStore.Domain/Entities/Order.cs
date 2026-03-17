@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HomeStore.Domain.Entities;
@@ -38,5 +38,8 @@ public partial class Order
     public virtual User? User { get; set; }
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+
+    // ⭐ THÊM DÒNG NÀY
+    public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
     public virtual Payment? Payment { get; set; }
 }

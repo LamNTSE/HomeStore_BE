@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using HomeStore.Domain.DTOs.Auth;
 using HomeStore.Domain.DTOs.Carts;
 using HomeStore.Domain.DTOs.Chat;
@@ -60,7 +60,11 @@ public class MappingProfile : Profile
 
         // Feedback
         CreateMap<Feedback, FeedbackDto>()
-            .ForMember(d => d.UserFullName, opt => opt.MapFrom(s => s.User != null ? s.User.FullName : ""))
-            .ForMember(d => d.ProductName, opt => opt.MapFrom(s => s.Product != null ? s.Product.ProductName : ""));
+     .ForMember(d => d.UserFullName,
+         opt => opt.MapFrom(s => s.User != null ? s.User.FullName : ""))
+     .ForMember(d => d.ProductName,
+         opt => opt.MapFrom(s => s.Product != null ? s.Product.ProductName : ""))
+     .ForMember(d => d.OrderId,
+         opt => opt.MapFrom(s => s.OrderId)); // 🔥 THÊM DÒNG NÀY
     }
 }

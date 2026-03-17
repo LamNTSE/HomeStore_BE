@@ -1,4 +1,4 @@
-namespace HomeStore.Domain.DTOs.Feedbacks;
+﻿namespace HomeStore.Domain.DTOs.Feedbacks;
 
 public class FeedbackDto
 {
@@ -6,6 +6,8 @@ public class FeedbackDto
     public int UserId { get; set; }
     public string UserFullName { get; set; } = string.Empty;
     public int ProductId { get; set; }
+
+    public int OrderId { get; set; }   // 🔥 BẮT BUỘC PHẢI CÓ
     public string ProductName { get; set; } = string.Empty;
     public int Rating { get; set; }
     public string? Comment { get; set; }

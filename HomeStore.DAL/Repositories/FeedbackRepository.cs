@@ -1,4 +1,4 @@
-using HomeStore.Domain.Entities;
+﻿using HomeStore.Domain.Entities;
 using HomeStore.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,10 +39,30 @@ public class FeedbackRepository : IFeedbackRepository
             .Include(f => f.Product)
             .FirstOrDefaultAsync(f => f.FeedbackId == feedbackId);
 
+    // method cũ (có thể giữ lại nếu đang dùng)
     public async Task<Feedback?> GetByUserAndProductAsync(int userId, int productId)
         => await _context.Feedbacks
             .FirstOrDefaultAsync(f => f.UserId == userId && f.ProductId == productId);
 
+    // ⭐ method mới để tránh ghi đè feedback khi cùng sản phẩm khác đơn
+    public async Task<Feedback?> GetByUserProductAndOrderAsync(int userId, int productId, int orderId)
+    {
+        return await _context.Feedbacks
+                .FirstOrDefaultAsync(f =>
+                    f.UserId == userId &&
+                    f.ProductId == productId &&
+                    f.OrderId == orderId);
+    }
+
+    public async Task<List<Feedback>> GetByProductAndOrderAsync(int productId, int orderId)
+    {
+        return await _context.Feedbacks
+            .Include(f => f.User)
+            .Include(f => f.Product)
+            .Where(f => f.ProductId == productId && f.OrderId == orderId)
+            .OrderByDescending(f => f.CreatedAt)
+            .ToListAsync();
+    }
     public async Task<Feedback> CreateAsync(Feedback feedback)
     {
         _context.Feedbacks.Add(feedback);

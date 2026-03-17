@@ -7,6 +7,8 @@ public interface IFeedbackService
 {
     Task<ApiResponse<List<FeedbackDto>>> GetAllFeedbacksAsync();
     Task<ApiResponse<List<FeedbackDto>>> GetFeedbacksByProductAsync(int productId);
+
+    Task<ApiResponse<List<FeedbackDto>>> GetFeedbacksByProductAndOrderAsync(int productId, int orderId);
     Task<ApiResponse<List<FeedbackDto>>> GetMyFeedbacksAsync(int userId);
     Task<ApiResponse<FeedbackDto>> GetFeedbackByIdAsync(int feedbackId);
     Task<ApiResponse<FeedbackDto>> CreateFeedbackAsync(int userId, CreateFeedbackRequest request);
