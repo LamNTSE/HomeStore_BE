@@ -1,4 +1,4 @@
-namespace HomeStore.Domain.DTOs.Vouchers;
+﻿namespace HomeStore.Domain.DTOs.Vouchers;
 
 public class CreateVoucherRequest
 {
@@ -10,4 +10,6 @@ public class CreateVoucherRequest
     public int MaxUsageCount { get; set; } = 1;
     public DateTime? StartDate { get; set; }
     public DateTime? ExpiryDate { get; set; }
+
+    public bool IsActive { get; set; } = false; // 🔥 thêm dòng này
 }

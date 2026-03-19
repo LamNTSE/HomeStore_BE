@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using HomeStore.Domain.DTOs.Common;
 using HomeStore.Domain.DTOs.Vouchers;
 using HomeStore.Domain.Entities;
@@ -73,7 +73,11 @@ public class VoucherService : IVoucherService
             MaxUsageCount = request.MaxUsageCount,
             StartDate = request.StartDate,
             ExpiryDate = request.ExpiryDate,
-            IsActive = true
+
+            // 🔥 FIX Ở ĐÂY
+            IsActive = request.IsActive
+               && request.ExpiryDate.HasValue
+               && request.ExpiryDate > DateTime.UtcNow
         };
 
         await _voucherRepo.CreateAsync(voucher);
