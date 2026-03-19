@@ -10,4 +10,5 @@ public interface ICartService
     Task<ApiResponse<CartDto>> UpdateCartItemAsync(int userId, int cartItemId, UpdateCartItemRequest request);
     Task<ApiResponse<bool>> RemoveCartItemAsync(int userId, int cartItemId);
     Task<ApiResponse<bool>> ClearCartAsync(int userId);
+    Task<ApiResponse<bool>> RemoveInactiveItemsAsync(int userId);
 }

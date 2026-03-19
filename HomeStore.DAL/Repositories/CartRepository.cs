@@ -11,10 +11,21 @@ public class CartRepository : ICartRepository
     public CartRepository(HomeStoreV2Context context) => _context = context;
 
     public async Task<Cart?> GetByUserIdAsync(int userId)
-        => await _context.Carts
+    {
+        var cart = await _context.Carts
             .Include(c => c.CartItems)
                 .ThenInclude(ci => ci.Product)
             .FirstOrDefaultAsync(c => c.UserId == userId);
+        
+        if (cart != null)
+        {
+            cart.CartItems = cart.CartItems
+                .Where(ci => ci.Product != null && ci.Product.IsActive)
+                .ToList();
+        }
+        
+        return cart;
+    }
 
     public async Task<Cart> CreateAsync(Cart cart)
     {

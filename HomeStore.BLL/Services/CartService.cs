@@ -30,6 +30,7 @@ public class CartService : ICartService
     {
         var product = await _productRepo.GetByIdAsync(request.ProductId);
         if (product == null) return ApiResponse<CartDto>.Fail("Product not found.");
+        if (!product.IsActive) return ApiResponse<CartDto>.Fail("Product is no longer available.");
 
         var cart = await GetOrCreateCartAsync(userId);
         var existingItem = await _cartRepo.GetCartItemAsync(cart.CartId, request.ProductId);
@@ -59,6 +60,10 @@ public class CartService : ICartService
         var cartItem = await _cartRepo.GetCartItemByIdAsync(cartItemId);
         if (cartItem == null) return ApiResponse<CartDto>.Fail("Cart item not found.");
 
+        var product = await _productRepo.GetByIdAsync(cartItem.ProductId);
+        if (product == null || !product.IsActive) 
+            return ApiResponse<CartDto>.Fail("Product is no longer available.");
+
         cartItem.Quantity = request.Quantity;
         await _cartRepo.UpdateItemAsync(cartItem);
 
@@ -78,6 +83,20 @@ public class CartService : ICartService
         if (cart != null)
             await _cartRepo.ClearCartAsync(cart.CartId);
         return ApiResponse<bool>.Ok(true, "Cart cleared.");
+    }
+
+    public async Task<ApiResponse<bool>> RemoveInactiveItemsAsync(int userId)
+    {
+        var cart = await _cartRepo.GetByUserIdAsync(userId);
+        if (cart == null) return ApiResponse<bool>.Ok(true);
+
+        var inactiveItems = cart.CartItems.Where(ci => ci.Product == null || !ci.Product.IsActive).ToList();
+        foreach (var item in inactiveItems)
+        {
+            await _cartRepo.RemoveItemAsync(item.CartItemId);
+        }
+
+        return ApiResponse<bool>.Ok(true, "Inactive items removed from cart.");
     }
 
     private async Task<Cart> GetOrCreateCartAsync(int userId)
