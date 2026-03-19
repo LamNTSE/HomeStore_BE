@@ -53,10 +53,5 @@ public class CartsController : ControllerBase
         return Ok(result);
     }
 
-    [HttpDelete("inactive-items")]
-    public async Task<IActionResult> RemoveInactiveItems()
-    {
-        var result = await _cartService.RemoveInactiveItemsAsync(UserId);
-        return Ok(result);
-    }
+
 }

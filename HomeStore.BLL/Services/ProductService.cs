@@ -12,13 +12,17 @@ public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepo;
     private readonly ICategoryRepository _categoryRepo;
+    private readonly ICartRepository _cartRepo;
+    private readonly ICartNotificationService _cartNotificationService;
     private readonly IMapper _mapper;
  
 
-    public ProductService(IProductRepository productRepo, ICategoryRepository categoryRepo, IMapper mapper)
+    public ProductService(IProductRepository productRepo, ICategoryRepository categoryRepo, ICartRepository cartRepo, ICartNotificationService cartNotificationService, IMapper mapper)
     {
         _productRepo = productRepo;
         _categoryRepo = categoryRepo;
+        _cartRepo = cartRepo;
+        _cartNotificationService = cartNotificationService;
         _mapper = mapper;
     }
 
@@ -66,7 +70,18 @@ public class ProductService : IProductService
         if (request.StockQuantity.HasValue) product.StockQuantity = request.StockQuantity.Value;
         if (request.ImageUrl != null) product.ImageUrl = request.ImageUrl;
         if (request.CategoryId.HasValue) product.CategoryId = request.CategoryId.Value;
-        if (request.IsActive.HasValue) product.IsActive = request.IsActive.Value;
+        if (request.IsActive.HasValue) 
+        {
+            product.IsActive = request.IsActive.Value;
+            if (!product.IsActive)
+            {
+                var affectedUserIds = await _cartRepo.RemoveProductFromAllCartsAsync(productId);
+                if (affectedUserIds.Any())
+                {
+                    await _cartNotificationService.SendProductRemovedFromCartAsync(affectedUserIds, productId);
+                }
+            }
+        }
 
         await _productRepo.UpdateAsync(product);
         return ApiResponse<ProductDto>.Ok(_mapper.Map<ProductDto>(product), "Product updated.");
@@ -75,6 +90,13 @@ public class ProductService : IProductService
     public async Task<ApiResponse<bool>> DeleteProductAsync(int productId)
     {
         await _productRepo.DeleteAsync(productId);
+        
+        var affectedUserIds = await _cartRepo.RemoveProductFromAllCartsAsync(productId);
+        if (affectedUserIds.Any())
+        {
+            await _cartNotificationService.SendProductRemovedFromCartAsync(affectedUserIds, productId);
+        }
+        
         return ApiResponse<bool>.Ok(true, "Product deleted.");
     }
 

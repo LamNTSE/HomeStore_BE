@@ -19,9 +19,17 @@ public class CartRepository : ICartRepository
         
         if (cart != null)
         {
-            cart.CartItems = cart.CartItems
-                .Where(ci => ci.Product != null && ci.Product.IsActive)
+            var inactiveItems = cart.CartItems
+                .Where(ci => ci.Product == null || !ci.Product.IsActive)
                 .ToList();
+            
+            if (inactiveItems.Any())
+            {
+                _context.CartItems.RemoveRange(inactiveItems);
+                await _context.SaveChangesAsync();
+            }
+            
+            cart.CartItems = cart.CartItems.Except(inactiveItems).ToList();
         }
         
         return cart;
@@ -67,5 +75,22 @@ public class CartRepository : ICartRepository
         var items = await _context.CartItems.Where(ci => ci.CartId == cartId).ToListAsync();
         _context.CartItems.RemoveRange(items);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<int>> RemoveProductFromAllCartsAsync(int productId)
+    {
+        var cartItems = await _context.CartItems
+            .Include(ci => ci.Cart)
+            .Where(ci => ci.ProductId == productId)
+            .ToListAsync();
+            
+        if (!cartItems.Any()) return new List<int>();
+
+        var userIds = cartItems.Select(ci => ci.Cart.UserId).Distinct().ToList();
+        
+        _context.CartItems.RemoveRange(cartItems);
+        await _context.SaveChangesAsync();
+        
+        return userIds;
     }
 }
