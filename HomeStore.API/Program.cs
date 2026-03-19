@@ -12,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 // ── DI: Repositories, Services, DbContext, AutoMapper ──
 builder.Services.AddApplicationServices(builder.Configuration);
 
+// ── SignalR Notification Services ──
+builder.Services.AddScoped<HomeStore.Domain.Interfaces.Services.ICartNotificationService, HomeStore.API.Services.CartNotificationService>();
+
 // ── SignalR ──
 builder.Services.AddSignalR();
 
@@ -134,6 +137,7 @@ app.MapControllers();
 // ── SignalR Hubs ──
 app.MapHub<ChatHub>("/hubs/chat");
 app.MapHub<OrderHub>("/hubs/orders");
+app.MapHub<CartHub>("/hubs/cart");
 
 app.Run();
 
