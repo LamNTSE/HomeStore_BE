@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using HomeStore.DAL.Repositories;
 using HomeStore.Domain.DTOs.Common;
 using HomeStore.Domain.DTOs.Products;
@@ -53,38 +53,74 @@ public class ProductService : IProductService
 
     public async Task<ApiResponse<ProductDto>> CreateProductAsync(CreateProductRequest request)
     {
+        // 🔥 Validate ảnh bắt buộc
+        if (string.IsNullOrEmpty(request.ImageUrl))
+        {
+            return ApiResponse<ProductDto>.Fail("Vui lòng upload ảnh sản phẩm");
+        }
+
         var product = _mapper.Map<Product>(request);
+
         await _productRepo.CreateAsync(product);
+
         var created = await _productRepo.GetByIdAsync(product.ProductId);
-        return ApiResponse<ProductDto>.Ok(_mapper.Map<ProductDto>(created!), "Product created.");
+
+        return ApiResponse<ProductDto>.Ok(
+            _mapper.Map<ProductDto>(created!),
+            "Product created."
+        );
     }
 
     public async Task<ApiResponse<ProductDto>> UpdateProductAsync(int productId, UpdateProductRequest request)
     {
         var product = await _productRepo.GetByIdAsync(productId);
-        if (product == null) return ApiResponse<ProductDto>.Fail("Product not found.");
 
-        if (request.ProductName != null) product.ProductName = request.ProductName;
-        if (request.Description != null) product.Description = request.Description;
-        if (request.Price.HasValue) product.Price = request.Price.Value;
-        if (request.StockQuantity.HasValue) product.StockQuantity = request.StockQuantity.Value;
-        if (request.ImageUrl != null) product.ImageUrl = request.ImageUrl;
-        if (request.CategoryId.HasValue) product.CategoryId = request.CategoryId.Value;
-        if (request.IsActive.HasValue) 
+        if (product == null)
+            return ApiResponse<ProductDto>.Fail("Product not found.");
+
+        if (request.ProductName != null)
+            product.ProductName = request.ProductName;
+
+        if (request.Description != null)
+            product.Description = request.Description;
+
+        if (request.Price.HasValue)
+            product.Price = request.Price.Value;
+
+        if (request.StockQuantity.HasValue)
+            product.StockQuantity = request.StockQuantity.Value;
+
+        // 🔥 FIX: chỉ update khi có URL hợp lệ (tránh ghi đè rỗng)
+        if (!string.IsNullOrEmpty(request.ImageUrl))
+        {
+            product.ImageUrl = request.ImageUrl;
+        }
+
+        if (request.CategoryId.HasValue)
+            product.CategoryId = request.CategoryId.Value;
+
+        if (request.IsActive.HasValue)
         {
             product.IsActive = request.IsActive.Value;
+
             if (!product.IsActive)
             {
                 var affectedUserIds = await _cartRepo.RemoveProductFromAllCartsAsync(productId);
+
                 if (affectedUserIds.Any())
                 {
-                    await _cartNotificationService.SendProductRemovedFromCartAsync(affectedUserIds, productId);
+                    await _cartNotificationService
+                        .SendProductRemovedFromCartAsync(affectedUserIds, productId);
                 }
             }
         }
 
         await _productRepo.UpdateAsync(product);
-        return ApiResponse<ProductDto>.Ok(_mapper.Map<ProductDto>(product), "Product updated.");
+
+        return ApiResponse<ProductDto>.Ok(
+            _mapper.Map<ProductDto>(product),
+            "Product updated."
+        );
     }
 
     public async Task<ApiResponse<bool>> DeleteProductAsync(int productId)

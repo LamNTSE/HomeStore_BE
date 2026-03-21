@@ -17,4 +17,7 @@
     <ProjectReference Include="..\HomeStore.DAL\HomeStore.DAL.csproj" />
     <ProjectReference Include="..\HomeStore.Domain\HomeStore.Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
 </Project>
