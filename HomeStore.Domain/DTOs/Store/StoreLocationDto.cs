@@ -9,5 +9,5 @@ public class StoreLocationDto
     public double Longitude { get; set; }
     public string? Phone { get; set; }
     public bool IsActive { get; set; }
-    public double? DistanceKm { get; set; } // calculated from user location
+    //public double? DistanceKm { get; set; } // calculated from user location
 }

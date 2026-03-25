@@ -15,9 +15,9 @@ public class StoreController : ControllerBase
     public StoreController(IStoreService storeService) => _storeService = storeService;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] double? lat, [FromQuery] double? lng)
+    public async Task<IActionResult> GetAll()
     {
-        var result = await _storeService.GetAllStoresAsync(lat, lng);
+        var result = await _storeService.GetAllStoresAsync();
         return Ok(result);
     }
 

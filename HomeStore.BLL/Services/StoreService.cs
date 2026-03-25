@@ -17,19 +17,12 @@ public class StoreService : IStoreService
         _mapper = mapper;
     }
 
-    public async Task<ApiResponse<List<StoreLocationDto>>> GetAllStoresAsync(double? userLat = null, double? userLng = null)
+    public async Task<ApiResponse<List<StoreLocationDto>>> GetAllStoresAsync()
     {
         var stores = await _storeRepo.GetAllAsync();
         var dtos = _mapper.Map<List<StoreLocationDto>>(stores);
 
-        if (userLat.HasValue && userLng.HasValue)
-        {
-            foreach (var dto in dtos)
-            {
-                dto.DistanceKm = CalculateDistance(userLat.Value, userLng.Value, dto.Latitude, dto.Longitude);
-            }
-            dtos = dtos.OrderBy(d => d.DistanceKm).ToList();
-        }
+        dtos = dtos.OrderBy(d => d.LocationId).ToList();
 
         return ApiResponse<List<StoreLocationDto>>.Ok(dtos);
     }
@@ -71,17 +64,17 @@ public class StoreService : IStoreService
         return ApiResponse<StoreLocationDto>.Ok(_mapper.Map<StoreLocationDto>(existing));
     }
 
-    private static double CalculateDistance(double lat1, double lng1, double lat2, double lng2)
-    {
-        const double R = 6371; // Earth radius in km
-        var dLat = ToRad(lat2 - lat1);
-        var dLng = ToRad(lng2 - lng1);
-        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                Math.Cos(ToRad(lat1)) * Math.Cos(ToRad(lat2)) *
-                Math.Sin(dLng / 2) * Math.Sin(dLng / 2);
-        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-        return Math.Round(R * c, 2);
-    }
+    //private static double CalculateDistance(double lat1, double lng1, double lat2, double lng2)
+    //{
+    //    const double R = 6371; // Earth radius in km
+    //    var dLat = ToRad(lat2 - lat1);
+    //    var dLng = ToRad(lng2 - lng1);
+    //    var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+    //            Math.Cos(ToRad(lat1)) * Math.Cos(ToRad(lat2)) *
+    //            Math.Sin(dLng / 2) * Math.Sin(dLng / 2);
+    //    var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+    //    return Math.Round(R * c, 2);
+    //}
 
-    private static double ToRad(double deg) => deg * Math.PI / 180;
+    //private static double ToRad(double deg) => deg * Math.PI / 180;
 }
